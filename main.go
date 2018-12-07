@@ -3,11 +3,11 @@ package main
 import (
 	"deus.solita.fi/Solita/projects/drone_code_camp/repositories/git/ddr.git"
 	"fmt"
-	"github.com/go-gl/mathgl/mgl32"
 	"gobot.io/x/gobot/platforms/keyboard"
 	"gocv.io/x/gocv"
 	"image"
 	"image/color"
+	"math"
 	"os"
 )
 
@@ -138,9 +138,9 @@ func aiFly(state DroneState, ring *ddr.Ring, drone ddr.Drone) DroneState {
 	// fmt.Println(pose.Position)
 	// fmt.Println(pose.Rotation.Mul3x1(mgl32.Vec3{0.0, 0.0, 1.0}))
 
-	x := pose.Rotation.Mul3x1(mgl32.Vec3{0.0, 0.0, 1.0}).X()
-	fmt.Println(x)
 	position := drone.CameraToDroneMatrix().Mul3x1(pose.Position)
+	//angle := pose.Rotation.Mul3x1(mgl32.Vec3{0.0, 0.0, 1.0}).X()
+	angle := -float32(math.Atan2(float64(position.X()), float64(position.Y())))
 
 	if position.Z() < 1 {
 		drone.Hover()
@@ -156,9 +156,9 @@ func aiFly(state DroneState, ring *ddr.Ring, drone ddr.Drone) DroneState {
 		positionAccuracy = 0.04
 	}
 
-	if x < -1.0*angleAccuracy {
+	if angle < -1.0*angleAccuracy {
 		return next(state, TurnRight, 10, "AI turn left")
-	} else if x > angleAccuracy {
+	} else if angle > angleAccuracy {
 		return next(state, TurnLeft, 10, "AI turn right")
 	} else {
 		drone.CeaseRotation()
