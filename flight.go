@@ -12,6 +12,7 @@ type DroneState struct {
 	operation OperationId
 	speed     int
 	message   string
+	nextRingId int
 }
 
 func operation(state DroneState, next OperationId) DroneState {
@@ -20,6 +21,7 @@ func operation(state DroneState, next OperationId) DroneState {
 		next,
 		state.speed,
 		state.message,
+		state.nextRingId,
 	}
 }
 
@@ -80,6 +82,7 @@ func fly(state DroneState, next OperationId) DroneState {
 			next,
 			speed,
 			description + " " + strconv.Itoa(speed),
+			state.nextRingId,
 		}
 	} else {
 		return operation(state, NOOP)
@@ -93,6 +96,7 @@ func toggleMode(state DroneState) DroneState {
 			Hover,
 			MinSpeed,
 			"Hovering",
+			state.nextRingId,
 		}
 	} else if state.flying && state.operation == Hover {
 		return DroneState{
@@ -100,6 +104,7 @@ func toggleMode(state DroneState) DroneState {
 			Land,
 			MinSpeed,
 			"Landing",
+			state.nextRingId,
 		}
 	} else {
 		return DroneState{
@@ -107,6 +112,7 @@ func toggleMode(state DroneState) DroneState {
 			Takeoff,
 			MinSpeed,
 			"Takeoff",
+			state.nextRingId,
 		}
 	}
 }

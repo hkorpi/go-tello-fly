@@ -30,8 +30,12 @@ var keymap = map[int]OperationId{
 	ArrowDown:  Down,
 }
 
+func isInTestMode() bool {
+	return len(os.Args) > 1 && os.Args[1] == "test"
+}
+
 func getDrone() ddr.Drone {
-	if len(os.Args) > 1 && os.Args[1] == "test" {
+	if isInTestMode() {
 		fmt.Println("Using fake drone.")
 		return ddr.NewDrone(ddr.DroneFake, "camera-calibration.yaml")
 	} else {
@@ -59,6 +63,7 @@ func main() {
 		NOOP,
 		MinSpeed,
 		"Initialized",
+		0,
 	}
 
 	for {
@@ -84,9 +89,13 @@ func main() {
 			state = toggleMode(state)
 			apply(drone, state)
 		case -1:
-			ring, exists := rings[0] // TODO ring selection
+			ring, exists := rings[state.nextRingId]
 			if exists {
 				state = aiFly(state, ring, drone)
+				apply(drone, state)
+			} else {
+				fmt.Printf("Can't see ring %d, turning\n", state.nextRingId)
+				state = operation(state, TurnRight)
 				apply(drone, state)
 			}
 		default:
