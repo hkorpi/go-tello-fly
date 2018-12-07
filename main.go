@@ -131,15 +131,15 @@ func aiFly(state DroneState, ring *ddr.Ring, drone ddr.Drone) DroneState {
 		return next(state, TurnLeft, 10, "AI turn right")
 	} else {
 		if position.X() > 0.1 {
-			return next(state, Left, 10, "AI go left")
-		} else if position.X() < 0.1 {
-			return next(state, Right, 10, "AI go right")
+			return next(state, Right, 10, "AI go left")
+		} else if position.X() < -0.1 {
+			return next(state, Left, 10, "AI go right")
 		} else if position.Y() > 0.1 {
 			return next(state, Down, 10, "AI go down")
-		} else if position.Y() < 0.1 {
+		} else if position.Y() < -0.1 {
 			return next(state, Up, 10, "AI go up")
 		} else {
-			return next(state, NOOP, 10, "GOAL")
+			return next(state, Forward, 10, "GOAL")
 		}
 	}
 }
