@@ -115,11 +115,22 @@ func aiFly(state DroneState, ring *ddr.Ring, drone ddr.Drone) DroneState {
 	// fmt.Println(pose.Rotation.Mul3x1(mgl32.Vec3{0.0, 0.0, 1.0}))
 
 	x := pose.Rotation.Mul3x1(mgl32.Vec3{0.0, 0.0, 1.0}).X()
+	position := pose.Position
 	if x < -0.1 {
 		return next(state, TurnRight, 10, "AI turn left")
 	} else if x > 0.1 {
 		return next(state, TurnLeft, 10, "AI turn right")
 	} else {
-		return operation(state, NOOP)
+		if position.X() > 0.1 {
+			return next(state, Left, 10, "AI go left")
+		} else if position.X() < 0.1 {
+			return next(state, Right, 10, "AI go right")
+		} else if position.Y() > 0.1 {
+			return next(state, Down, 10, "AI go down")
+		} else if position.Y() < 0.1 {
+			return next(state, Up, 10, "AI go up")
+		} else {
+			return next(state, NOOP, 10, "GOAL")
+		}
 	}
 }
