@@ -72,7 +72,11 @@ func main() {
 			state = toggleMode(state)
 			apply(drone, state)
 		case -1:
-			aiFly(state, rings, drone)
+			ring, exists := rings[3] // TODO ring selection
+			if exists {
+				state = aiFly(state, ring, drone)
+				apply(drone, state)
+			}
 		default:
 			operation, validKey := keymap[key]
 			if validKey {
@@ -93,10 +97,8 @@ func displayRings(rings map[int]*ddr.Ring, frame gocv.Mat, drone ddr.Drone) {
 	}
 }
 
-func aiFly(state DroneState, rings map[int]*ddr.Ring, drone ddr.Drone) {
-	ring, exists := rings[3]
-	if exists {
-		position := ring.EstimatePose(drone).Position
-		fmt.Println(position)
-	}
+func aiFly(state DroneState, ring *ddr.Ring, drone ddr.Drone) DroneState {
+	pose := ring.EstimatePose(drone)
+	fmt.Println(pose)
+	return operation(state, NOOP)
 }
