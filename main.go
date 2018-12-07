@@ -110,7 +110,7 @@ func main() {
 					apply(drone, state)
 
 					if state.message == "GOAL" {
-						goalCounter = 20
+						goalCounter = 15
 					}
 				} /*else if state.flying && state.message != "Seeking" {
 					state = next(state, TurnLeft, 10, "Seeking")
@@ -155,22 +155,27 @@ func aiFly(state DroneState, ring *ddr.Ring, drone ddr.Drone) DroneState {
 		angleAccuracy = 0.1
 	}
 
+	positionAccuracy := float32(0.08)
+	if position.Z() < 1 {
+		positionAccuracy = 0.03
+	}
+
 	if x < -1.0*angleAccuracy {
 		return next(state, TurnRight, 10, "AI turn left")
 	} else if x > angleAccuracy {
 		return next(state, TurnLeft, 10, "AI turn right")
 	} else {
 		drone.CeaseRotation()
-		if position.X() > 0.05 {
+		if position.X() > positionAccuracy {
 			return next(state, Right, 10, "AI go right")
-		} else if position.X() < -0.05 {
+		} else if position.X() < -1*positionAccuracy {
 			return next(state, Left, 10, "AI go left")
-		} else if position.Y() > 0.05 {
+		} else if position.Y() > positionAccuracy {
 			return next(state, Down, 10, "AI go down")
-		} else if position.Y() < -0.05 {
+		} else if position.Y() < -1*positionAccuracy {
 			return next(state, Up, 10, "AI go up")
 		} else {
-			if position.Z() < 0.6 {
+			if position.Z() < 0.5 {
 				return next(state, Forward, 50, "GOAL")
 			} else {
 				return next(state, Forward, 10, "AI Forward")
