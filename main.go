@@ -63,6 +63,8 @@ func main() {
 
 	for {
 		frame := <-drone.VideoStream()
+		
+		ddr.DrawControls(drone, &frame)
 
 		gocv.PutText(&frame, state.message,
 			image.Pt(50, 50),
