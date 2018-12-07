@@ -153,7 +153,7 @@ func aiFly(state DroneState, ring *ddr.Ring, drone ddr.Drone) DroneState {
 
 	positionAccuracy := float32(0.08)
 	if position.Z() < 1 {
-		positionAccuracy = 0.03
+		positionAccuracy = 0.04
 	}
 
 	if x < -1.0*angleAccuracy {
@@ -171,7 +171,7 @@ func aiFly(state DroneState, ring *ddr.Ring, drone ddr.Drone) DroneState {
 		} else if position.Y() < -1*positionAccuracy {
 			return next(state, Up, 10, "AI go up")
 		} else {
-			if position.Z() < 0.5 {
+			if position.Z() < 0.6 {
 				return next(state, Forward, 50, "GOAL")
 			} else {
 				return next(state, Forward, 10, "AI Forward")
