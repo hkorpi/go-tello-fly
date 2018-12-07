@@ -58,8 +58,11 @@ func main() {
 			image.Pt(50, 50),
 			gocv.FontHersheyComplex, 0.8, color.RGBA{255, 255, 255, 0}, 2)
 
+		markers := track.GetMarkers(&frame)
+		rings := track.ExtractRings(markers)
+
 		// detect markers in this frame
-		displayRings(track, frame, drone)
+		displayRings(rings, frame, drone)
 
 		window.IMShow(frame)
 		key := window.WaitKey(1)
@@ -82,9 +85,8 @@ func main() {
 	}
 }
 
-func displayRings(track *ddr.Track, frame gocv.Mat, drone ddr.Drone) {
-	markers := track.GetMarkers(&frame)
-	rings := track.ExtractRings(markers)
+func displayRings(rings map[int]*ddr.Ring, frame gocv.Mat, drone ddr.Drone) {
+
 	for _, ring := range rings {
 		pose := ring.EstimatePose(drone)
 		ring.Draw(&frame, pose, drone)
