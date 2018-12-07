@@ -23,6 +23,15 @@ func operation(state DroneState, next OperationId) DroneState {
 	}
 }
 
+func next(state DroneState, next OperationId, speed int, message string) DroneState {
+	return DroneState{
+		state.flying,
+		next,
+		speed,
+		message,
+	}
+}
+
 type OperationId int
 
 const (

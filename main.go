@@ -63,7 +63,7 @@ func main() {
 
 	for {
 		frame := <-drone.VideoStream()
-		
+
 		ddr.DrawControls(drone, &frame)
 
 		gocv.PutText(&frame, state.message,
@@ -116,9 +116,9 @@ func aiFly(state DroneState, ring *ddr.Ring, drone ddr.Drone) DroneState {
 
 	x := pose.Rotation.Mul3x1(mgl32.Vec3{0.0, 0.0, 1.0}).X()
 	if x < -0.1 {
-		return operation(state, TurnLeft)
+		return next(state, TurnRight, 10, "AI turn left")
 	} else if x > 0.1 {
-		return operation(state, TurnRight)
+		return next(state, TurnLeft, 10, "AI turn right")
 	} else {
 		return operation(state, NOOP)
 	}
