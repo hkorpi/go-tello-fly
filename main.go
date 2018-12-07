@@ -71,13 +71,13 @@ func main() {
 		case keyboard.Spacebar: // space
 			state = toggleMode(state)
 			apply(drone, state)
+		case -1:
+			aiFly(state, rings, drone)
 		default:
 			operation, validKey := keymap[key]
 			if validKey {
 				state = fly(state, operation)
 				apply(drone, state)
-			} else {
-
 			}
 		}
 
@@ -93,6 +93,10 @@ func displayRings(rings map[int]*ddr.Ring, frame gocv.Mat, drone ddr.Drone) {
 	}
 }
 
-func aiFly(state DroneState) {
-
+func aiFly(state DroneState, rings map[int]*ddr.Ring, drone ddr.Drone) {
+	ring, exists := rings[3]
+	if exists {
+		position := ring.EstimatePose(drone).Position
+		fmt.Println(position)
+	}
 }
