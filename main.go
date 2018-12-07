@@ -3,6 +3,7 @@ package main
 import (
 	"deus.solita.fi/Solita/projects/drone_code_camp/repositories/git/ddr.git"
 	"fmt"
+	"github.com/go-gl/mathgl/mgl32"
 	"gobot.io/x/gobot/platforms/keyboard"
 	"gocv.io/x/gocv"
 	"image"
@@ -81,7 +82,7 @@ func main() {
 			state = toggleMode(state)
 			apply(drone, state)
 		case -1:
-			ring, exists := rings[3] // TODO ring selection
+			ring, exists := rings[0] // TODO ring selection
 			if exists {
 				state = aiFly(state, ring, drone)
 				apply(drone, state)
@@ -108,6 +109,15 @@ func displayRings(rings map[int]*ddr.Ring, frame gocv.Mat, drone ddr.Drone) {
 
 func aiFly(state DroneState, ring *ddr.Ring, drone ddr.Drone) DroneState {
 	pose := ring.EstimatePose(drone)
-	fmt.Println(pose)
-	return operation(state, NOOP)
+	//fmt.Println(pose.Position)
+	// fmt.Println(pose.Rotation.Mul3x1(mgl32.Vec3{0.0, 0.0, 1.0}))
+
+	x := pose.Rotation.Mul3x1(mgl32.Vec3{0.0, 0.0, 1.0}).X()
+	if x < -0.1 {
+		return operation(state, TurnLeft)
+	} else if x > 0.1 {
+		return operation(state, TurnRight)
+	} else {
+		return operation(state, NOOP)
+	}
 }
