@@ -31,8 +31,8 @@ var keymap = map[int]OperationId{
 func main() {
 
 	window := gocv.NewWindow("Drone")
-	drone := ddr.NewDrone(ddr.DroneReal, "../examples/drone-camera-calibration-400.yaml")
-	//drone := ddr.NewDrone(ddr.DroneFake, "../examples/camera-calibration.yaml")
+	//drone := ddr.NewDrone(ddr.DroneReal, "drone-camera-calibration-400.yaml")
+	drone := ddr.NewDrone(ddr.DroneFake, "camera-calibration.yaml")
 	err := drone.Init()
 
 	if err != nil {
