@@ -40,7 +40,7 @@ func getDrone() ddr.Drone {
 		return ddr.NewDrone(ddr.DroneFake, "camera-calibration.yaml")
 	} else {
 		fmt.Println("Using real drone.")
-		return ddr.NewDrone(ddr.DroneReal, "drone-camera-calibration-400.yaml")
+		return ddr.NewDrone(ddr.DroneReal, "drone-camera-calibration-720.yaml")
 	}
 }
 
@@ -93,10 +93,9 @@ func main() {
 			if exists {
 				state = aiFly(state, ring, drone)
 				apply(drone, state)
-			} /*else {
-				state = next(state, TurnRight, 10, "Seeking ring turning right")
-				apply(drone, state)
-			}*/
+			} else if state.message == "GOAL" {
+				next(state, Hover, 10, "AI Hower")
+			}
 		default:
 			operation, validKey := keymap[key]
 			if validKey {
@@ -125,6 +124,11 @@ func aiFly(state DroneState, ring *ddr.Ring, drone ddr.Drone) DroneState {
 	x := pose.Rotation.Mul3x1(mgl32.Vec3{0.0, 0.0, 1.0}).X()
 	fmt.Println(x)
 	position := drone.CameraToDroneMatrix().Mul3x1(pose.Position)
+
+	if position.Z() < 1 {
+		drone.Hover()
+	}
+
 	if x < -0.2 {
 		return next(state, TurnRight, 10, "AI turn left")
 	} else if x > 0.2 {
@@ -140,7 +144,17 @@ func aiFly(state DroneState, ring *ddr.Ring, drone ddr.Drone) DroneState {
 		} else if position.Y() < -0.05 {
 			return next(state, Up, 10, "AI go up")
 		} else {
-			return next(state, Forward, 10, "GOAL")
+			if position.Z() < 0.6 {
+				return DroneState{
+					true,
+					Forward,
+					100,
+					"GOAL",
+					state.nextRingId + 1,
+				}
+			} else {
+				return next(state, Forward, 10, "AI Forward")
+			}
 		}
 	}
 }
