@@ -33,12 +33,16 @@ func main() {
 	window := gocv.NewWindow("Drone")
 	//drone := ddr.NewDrone(ddr.DroneReal, "drone-camera-calibration-400.yaml")
 	drone := ddr.NewDrone(ddr.DroneFake, "camera-calibration.yaml")
+
 	err := drone.Init()
 
 	if err != nil {
 		fmt.Printf("error while initializing drone: %v\n", err)
 		return
 	}
+
+	track := ddr.NewTrack()
+	defer track.Close()
 
 	state := DroneState{
 		false,
@@ -54,10 +58,11 @@ func main() {
 			image.Pt(50, 50),
 			gocv.FontHersheyComplex, 0.8, color.RGBA{255, 255, 255, 0}, 2)
 
+		// detect markers in this frame
+		displayRings(track, frame, drone)
+
 		window.IMShow(frame)
 		key := window.WaitKey(1)
-
-		//fmt.Printf(" %d ", key)
 
 		switch key {
 		case keyboard.Spacebar: // space
@@ -68,9 +73,24 @@ func main() {
 			if validKey {
 				state = fly(state, operation)
 				apply(drone, state)
+			} else {
+
 			}
 		}
 
 		//fmt.Println(state)
 	}
+}
+
+func displayRings(track *ddr.Track, frame gocv.Mat, drone ddr.Drone) {
+	markers := track.GetMarkers(&frame)
+	rings := track.ExtractRings(markers)
+	for _, ring := range rings {
+		pose := ring.EstimatePose(drone)
+		ring.Draw(&frame, pose, drone)
+	}
+}
+
+func aiFly(state DroneState) {
+
 }
