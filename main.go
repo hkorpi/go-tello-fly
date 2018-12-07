@@ -81,7 +81,11 @@ func main() {
 		rings := track.ExtractRings(markers)
 
 		// detect markers in this frame
-		displayRings(rings, frame, drone)
+		ring, exists := rings[state.nextRingId]
+		if exists {
+			pose := ring.EstimatePose(drone)
+			ring.Draw(&frame, pose, drone)
+		}
 
 		window.IMShow(frame)
 		key := window.WaitKey(1)
@@ -126,14 +130,6 @@ func main() {
 		}
 
 		//fmt.Println(state)
-	}
-}
-
-func displayRings(rings map[int]*ddr.Ring, frame gocv.Mat, drone ddr.Drone) {
-
-	for _, ring := range rings {
-		pose := ring.EstimatePose(drone)
-		ring.Draw(&frame, pose, drone)
 	}
 }
 
