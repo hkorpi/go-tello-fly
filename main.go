@@ -66,6 +66,8 @@ func main() {
 		0,
 	}
 
+	goalCounter := 0
+
 	for {
 		frame := <-drone.VideoStream()
 
@@ -89,12 +91,31 @@ func main() {
 			state = toggleMode(state)
 			apply(drone, state)
 		case -1:
-			ring, exists := rings[state.nextRingId]
-			if exists {
-				state = aiFly(state, ring, drone)
+			if goalCounter == 1 {
+				state = DroneState{
+					true,
+					Hover,
+					10,
+					"GOAL complished",
+					state.nextRingId + 1,
+				}
 				apply(drone, state)
-			} else if state.message == "GOAL" {
-				next(state, Hover, 10, "AI Hower")
+				goalCounter = 0
+			} else if goalCounter > 0 {
+				goalCounter = goalCounter - 1
+			} else {
+				ring, exists := rings[state.nextRingId]
+				if exists {
+					state = aiFly(state, ring, drone)
+					apply(drone, state)
+
+					if state.message == "GOAL" {
+						goalCounter = 20
+					}
+				} /*else if state.flying && state.message != "Seeking" {
+					state = next(state, TurnLeft, 10, "Seeking")
+					apply(drone, state)
+				}*/
 			}
 		default:
 			operation, validKey := keymap[key]
@@ -129,9 +150,14 @@ func aiFly(state DroneState, ring *ddr.Ring, drone ddr.Drone) DroneState {
 		drone.Hover()
 	}
 
-	if x < -0.2 {
+	angleAccuracy := float32(0.2)
+	if position.Z() < 1 {
+		angleAccuracy = 0.1
+	}
+
+	if x < -1.0*angleAccuracy {
 		return next(state, TurnRight, 10, "AI turn left")
-	} else if x > 0.2 {
+	} else if x > angleAccuracy {
 		return next(state, TurnLeft, 10, "AI turn right")
 	} else {
 		drone.CeaseRotation()
@@ -145,13 +171,7 @@ func aiFly(state DroneState, ring *ddr.Ring, drone ddr.Drone) DroneState {
 			return next(state, Up, 10, "AI go up")
 		} else {
 			if position.Z() < 0.6 {
-				return DroneState{
-					true,
-					Forward,
-					100,
-					"GOAL",
-					state.nextRingId + 1,
-				}
+				return next(state, Forward, 50, "GOAL")
 			} else {
 				return next(state, Forward, 10, "AI Forward")
 			}
