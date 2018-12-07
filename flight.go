@@ -8,10 +8,10 @@ import (
 const MinSpeed = 10
 
 type DroneState struct {
-	flying    bool
-	operation OperationId
-	speed     int
-	message   string
+	flying     bool
+	operation  OperationId
+	speed      int
+	message    string
 	nextRingId int
 }
 
@@ -31,6 +31,7 @@ func next(state DroneState, next OperationId, speed int, message string) DroneSt
 		next,
 		speed,
 		message,
+		state.nextRingId,
 	}
 }
 
