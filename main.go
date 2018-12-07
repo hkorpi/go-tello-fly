@@ -93,11 +93,10 @@ func main() {
 			if exists {
 				state = aiFly(state, ring, drone)
 				apply(drone, state)
-			} else {
-				fmt.Printf("Can't see ring %d, turning\n", state.nextRingId)
-				state = operation(state, TurnRight)
+			} /*else {
+				state = next(state, TurnRight, 10, "Seeking ring turning right")
 				apply(drone, state)
-			}
+			}*/
 		default:
 			operation, validKey := keymap[key]
 			if validKey {
@@ -120,14 +119,15 @@ func displayRings(rings map[int]*ddr.Ring, frame gocv.Mat, drone ddr.Drone) {
 
 func aiFly(state DroneState, ring *ddr.Ring, drone ddr.Drone) DroneState {
 	pose := ring.EstimatePose(drone)
-	//fmt.Println(pose.Position)
+	// fmt.Println(pose.Position)
 	// fmt.Println(pose.Rotation.Mul3x1(mgl32.Vec3{0.0, 0.0, 1.0}))
 
 	x := pose.Rotation.Mul3x1(mgl32.Vec3{0.0, 0.0, 1.0}).X()
-	position := pose.Position
-	if x < -0.1 {
+	fmt.Println(x)
+	position := drone.CameraToDroneMatrix().Mul3x1(pose.Position)
+	if x < -0.2 {
 		return next(state, TurnRight, 10, "AI turn left")
-	} else if x > 0.1 {
+	} else if x > 0.2 {
 		return next(state, TurnLeft, 10, "AI turn right")
 	} else {
 		if position.X() > 0.1 {
